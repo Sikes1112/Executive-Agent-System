@@ -1,0 +1,193 @@
+{
+  "enums": {
+    "ReplyDraftStatus": [
+      "draft",
+      "edited",
+      "final"
+    ],
+    "ReplyTone": [
+      "professional",
+      "friendly",
+      "apologetic",
+      "firm"
+    ],
+    "Sentiment": [
+      "positive",
+      "neutral",
+      "negative"
+    ]
+  },
+  "rules": [
+    {
+      "entity": "Review",
+      "error_code": "REVIEW_01",
+      "field": "id",
+      "id": "review_id_nonempty",
+      "rule": "nonempty",
+      "severity": "error"
+    },
+    {
+      "entity": "Review",
+      "error_code": "REVIEW_02",
+      "field": "content",
+      "id": "review_content_min_length",
+      "rule": "minlength(10)",
+      "severity": "warning"
+    },
+    {
+      "entity": "Review",
+      "error_code": "REVIEW_03",
+      "field": "sentiment",
+      "id": "review_sentiment_enum",
+      "rule": "enum(positive,neutral,negative)",
+      "severity": "error"
+    },
+    {
+      "entity": "Review",
+      "error_code": "REVIEW_04",
+      "field": "issues",
+      "id": "review_issues_array_string",
+      "rule": "array<string>",
+      "severity": "warning"
+    },
+    {
+      "condition": "hasField(replyDraft)",
+      "entity": "Review",
+      "error_code": "REVIEW_05",
+      "field": "replyDraft",
+      "id": "review_replyDraft_exists",
+      "rule": "!optional",
+      "severity": "info"
+    },
+    {
+      "condition": "hasField(replyDraft)",
+      "entity": "Review",
+      "error_code": "REVIEW_06",
+      "field": "replyDraft.text",
+      "id": "review_replyDraft_text_min_length",
+      "rule": "minlength(20)",
+      "severity": "error"
+    },
+    {
+      "condition": "hasField(actionItems)",
+      "entity": "Review",
+      "error_code": "REVIEW_07",
+      "field": "actionItems",
+      "id": "review_actionItems_exists",
+      "rule": "!optional",
+      "severity": "info"
+    },
+    {
+      "entity": "ReplyDraft",
+      "error_code": "REPLYDRAFT_01",
+      "field": "id",
+      "id": "replyDraft_id_nonempty",
+      "rule": "nonempty",
+      "severity": "error"
+    },
+    {
+      "entity": "ReplyDraft",
+      "error_code": "REPLYDRAFT_02",
+      "field": "reviewId",
+      "id": "replyDraft_reviewId_nonempty",
+      "rule": "nonempty",
+      "severity": "error"
+    },
+    {
+      "entity": "ReplyDraft",
+      "error_code": "REPLYDRAFT_03",
+      "field": "text",
+      "id": "replyDraft_text_min_length",
+      "rule": "minlength(15)",
+      "severity": "warning"
+    },
+    {
+      "entity": "ReplyDraft",
+      "error_code": "REPLYDRAFT_04",
+      "field": "tone",
+      "id": "replyDraft_tone_enum",
+      "rule": "enum(professional,friendly,apologetic,firm)",
+      "severity": "error"
+    },
+    {
+      "entity": "ReplyDraft",
+      "error_code": "REPLYDRAFT_05",
+      "field": "status",
+      "id": "replyDraft_status_enum",
+      "rule": "enum(draft,edited,final)",
+      "severity": "warning"
+    },
+    {
+      "entity": "ActionItem",
+      "error_code": "ACTIONITEM_01",
+      "field": "id",
+      "id": "actionItem_id_nonempty",
+      "rule": "nonempty",
+      "severity": "error"
+    },
+    {
+      "entity": "ActionItem",
+      "error_code": "ACTIONITEM_02",
+      "field": "reviewId",
+      "id": "actionItem_reviewId_nonempty",
+      "rule": "nonempty",
+      "severity": "error"
+    },
+    {
+      "entity": "ActionItem",
+      "error_code": "ACTIONITEM_03",
+      "field": "title",
+      "id": "actionItem_title_min_length",
+      "rule": "minlength(5)",
+      "severity": "warning"
+    },
+    {
+      "entity": "ActionItem",
+      "error_code": "ACTIONITEM_04",
+      "field": "status",
+      "id": "actionItem_status_matches_lifecycle",
+      "rule": "matchesState(ActionItemLifecycle)",
+      "severity": "error"
+    },
+    {
+      "entity": "ActionItem",
+      "error_code": "ACTIONITEM_05",
+      "field": "dueDate",
+      "id": "actionItem_dueDate_ISO8601",
+      "rule": "ISO8601",
+      "severity": "optional"
+    },
+    {
+      "entity": "ActionItem",
+      "error_code": "ACTIONITEM_06",
+      "field": "createdAt",
+      "id": "actionItem_createdAt_ISO8601",
+      "rule": "ISO8601",
+      "severity": "error"
+    },
+    {
+      "entity": "IssueTag",
+      "error_code": "ISSUETAG_01",
+      "field": "id",
+      "id": "issueTag_id_nonempty",
+      "rule": "nonempty",
+      "severity": "error"
+    },
+    {
+      "entity": "IssueTag",
+      "error_code": "ISSUETAG_02",
+      "field": "name",
+      "id": "issueTag_name_min_length",
+      "rule": "minlength(2)",
+      "severity": "warning"
+    },
+    {
+      "entity": "IssueTag",
+      "error_code": "ISSUETAG_03",
+      "field": "name",
+      "id": "issueTag_name_unique",
+      "rule": "unique",
+      "severity": "error"
+    }
+  ]
+}

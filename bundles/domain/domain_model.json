@@ -1,0 +1,252 @@
+{
+  "entities": [
+    {
+      "description": "A review item managed by the Solo operator.",
+      "fields": [
+        {
+          "description": "Unique identifier for the review.",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "The content of the review paste by the operator.",
+          "name": "content",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "The sentiment extracted from the review's content.",
+          "name": "sentiment",
+          "required": true,
+          "type": "enum:Sentiment"
+        },
+        {
+          "description": "List of issues identified in the review.",
+          "name": "issues",
+          "required": false,
+          "type": "array:string"
+        },
+        {
+          "description": "The draft reply prepared for this review.",
+          "name": "replyDraft",
+          "required": false,
+          "type": "ReplyDraft"
+        },
+        {
+          "description": "List of action items derived from the review.",
+          "name": "actionItems",
+          "required": false,
+          "type": "array:ActionItem"
+        }
+      ],
+      "invariants": [
+        "If 'sentiment' is set, then 'issues' should not be empty."
+      ],
+      "name": "Review"
+    },
+    {
+      "description": "A tag assigned to an issue identified in a review.",
+      "fields": [
+        {
+          "description": "Unique identifier for the issue tag.",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "The name of the issue tag.",
+          "name": "name",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "Additional description or context for the issue tag.",
+          "name": "description",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "invariants": [
+        "'name' should be unique within the system."
+      ],
+      "name": "IssueTag"
+    },
+    {
+      "description": "A draft reply prepared for a review.",
+      "fields": [
+        {
+          "description": "Unique identifier for the reply draft.",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "The content of the draft reply.",
+          "name": "content",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "invariants": [
+        "'content' should not be empty if intended to send."
+      ],
+      "name": "ReplyDraft"
+    },
+    {
+      "description": "An action item derived from a review.",
+      "fields": [
+        {
+          "description": "Unique identifier for the action item.",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "The description of the action item.",
+          "name": "description",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "Current status of the action item.",
+          "name": "status",
+          "required": true,
+          "type": "enum:ActionStatus"
+        }
+      ],
+      "invariants": [
+        "'description' should be clear and actionable."
+      ],
+      "name": "ActionItem"
+    },
+    {
+      "description": "The current status of a review thread.",
+      "fields": [
+        {
+          "description": "Unique identifier for the thread status.",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "The current status of the review thread.",
+          "name": "status",
+          "required": true,
+          "type": "enum:ThreadStatus"
+        }
+      ],
+      "invariants": [
+        "'status' should reflect the latest resolution effort."
+      ],
+      "name": "ThreadStatus"
+    }
+  ],
+  "enums": [
+    {
+      "description": "Possible sentiments that can be extracted from a review.",
+      "name": "Sentiment",
+      "values": [
+        "positive",
+        "neutral",
+        "negative"
+      ]
+    },
+    {
+      "description": "Possible statuses for an action item derived from a review.",
+      "name": "ActionStatus",
+      "values": [
+        "open",
+        "in-progress",
+        "resolved"
+      ]
+    },
+    {
+      "description": "Possible statuses for a review thread.",
+      "name": "ThreadStatus",
+      "values": [
+        "active",
+        "on-hold",
+        "closed"
+      ]
+    }
+  ],
+  "identifiers": [
+    {
+      "entity": "Review",
+      "id_field": "id",
+      "strategy": "uuid4"
+    },
+    {
+      "entity": "IssueTag",
+      "id_field": "id",
+      "strategy": "uuid4"
+    },
+    {
+      "entity": "ReplyDraft",
+      "id_field": "id",
+      "strategy": "uuid4"
+    },
+    {
+      "entity": "ActionItem",
+      "id_field": "id",
+      "strategy": "uuid4"
+    }
+  ],
+  "relationships": [
+    {
+      "description": "A review can have multiple associated issue tags.",
+      "from": "Review",
+      "to": "IssueTag",
+      "type": "has-many"
+    },
+    {
+      "description": "A review can have one reply draft prepared for it.",
+      "from": "Review",
+      "to": "ReplyDraft",
+      "type": "hasOne"
+    },
+    {
+      "description": "A review can lead to multiple action items.",
+      "from": "Review",
+      "to": "ActionItem",
+      "type": "has-many"
+    },
+    {
+      "description": "A review belongs to a single thread status.",
+      "from": "Review",
+      "to": "ThreadStatus",
+      "type": "hasOne"
+    }
+  ],
+  "timestamps": [
+    {
+      "entity": "Review",
+      "fields": [
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "entity": "IssueTag",
+      "fields": [
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "entity": "ReplyDraft",
+      "fields": [
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "entity": "ActionItem",
+      "fields": [
+        "created_at",
+        "updated_at"
+      ]
+    }
+  ]
+}

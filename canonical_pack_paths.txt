@@ -1,0 +1,13 @@
+bundles/domain/app_overview.json
+bundles/domain/domain_model.json
+bundles/domain/state_machines.json
+bundles/domain/validation_rules.json
+bundles/contracts/api_contract.json
+bundles/contracts/events_contract.json
+bundles/ui_spec/screens.json
+bundles/ui_spec/components.json
+bundles/ui_spec/navigation.json
+bundles/tests/test_vectors.json
+bundles/code_skeleton/types.ts
+bundles/code_skeleton/validators.ts
+bundles/code_skeleton/fsm.ts

@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "app": "ReviewInbox",
+    "version": "1.0"
+  },
+  "operations": [
+    {
+      "description": "Pastes content into a review.",
+      "errors": [
+        "InvalidContentError"
+      ],
+      "input": {
+        "content": "string"
+      },
+      "name": "review.paste",
+      "output": "Review"
+    },
+    {
+      "description": "Analyzes a review by its ID and returns sentiment and issues.",
+      "errors": [
+        "ReviewNotFoundError"
+      ],
+      "input": {
+        "reviewId": "string"
+      },
+      "name": "review.analyze",
+      "output": {
+        "issues": [
+          "IssueTag"
+        ],
+        "sentiment": "string"
+      }
+    },
+    {
+      "description": "Generates a reply draft for a given review ID with an optional tone.",
+      "errors": [
+        "ReviewNotFoundError"
+      ],
+      "input": {
+        "reviewId": "string",
+        "tone": "string?"
+      },
+      "name": "reply.generateDraft",
+      "output": "ReplyDraft"
+    },
+    {
+      "description": "Updates a reply draft by its ID with new text.",
+      "errors": [
+        "DraftNotFoundError"
+      ],
+      "input": {
+        "draftId": "string",
+        "text": "string"
+      },
+      "name": "reply.updateDraft",
+      "output": "ReplyDraft"
+    },
+    {
+      "description": "Marks a review as sent by its ID.",
+      "errors": [
+        "ReviewNotFoundError"
+      ],
+      "input": {
+        "reviewId": "string"
+      },
+      "name": "review.markSent",
+      "output": "Review"
+    },
+    {
+      "description": "Creates action items from a review ID with given titles.",
+      "errors": [
+        "ReviewNotFoundError",
+        "InvalidTitleError"
+      ],
+      "input": {
+        "reviewId": "string",
+        "titles": [
+          "string"
+        ]
+      },
+      "name": "action.createFromReview",
+      "output": "ActionItem[]"
+    },
+    {
+      "description": "Updates the status of an action item by its ID.",
+      "errors": [
+        "ActionItemNotFoundError"
+      ],
+      "input": {
+        "actionItemId": "string",
+        "status": "string"
+      },
+      "name": "action.updateStatus",
+      "output": "ActionItem"
+    },
+    {
+      "description": "Lists reviews based on filters: sentiment, tag, status, textQuery.",
+      "errors": [],
+      "input": {
+        "filters": {
+          "sentiment": "string?",
+          "status": "string?",
+          "tag": "IssueTag[]?",
+          "textQuery": "string?"
+        }
+      },
+      "name": "search.listReviews",
+      "output": "Review[]"
+    }
+  ],
+  "resources": [
+    "Review",
+    "ReplyDraft",
+    "ActionItem",
+    "IssueTag"
+  ]
+}

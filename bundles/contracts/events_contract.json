@@ -1,0 +1,117 @@
+{
+  "events": [
+    {
+      "consumed_by": "System",
+      "description": "Fired when a review request is pasted into the system.",
+      "emitted_by": "User",
+      "name": "review.pasted",
+      "payload_shape": {
+        "content": "string",
+        "reviewId": "string"
+      }
+    },
+    {
+      "consumed_by": "User, System",
+      "description": "Fired when a review request is analyzed by the system.",
+      "emitted_by": "System",
+      "name": "review.analyzed",
+      "payload_shape": {
+        "analysis_result": {
+          "issues": "string[]",
+          "sentiment": "Sentiment"
+        },
+        "reviewId": "string"
+      }
+    },
+    {
+      "consumed_by": "User",
+      "description": "Fired when a reply draft is generated.",
+      "emitted_by": "System",
+      "name": "reply.draft_generated",
+      "payload_shape": {
+        "draft_content": "string",
+        "reviewId": "string"
+      }
+    },
+    {
+      "consumed_by": "System",
+      "description": "Fired when a reply draft is updated.",
+      "emitted_by": "User",
+      "name": "reply.draft_updated",
+      "payload_shape": {
+        "reviewId": "string",
+        "updated_content": "string"
+      }
+    },
+    {
+      "consumed_by": "System",
+      "description": "Fired when a review is sent.",
+      "emitted_by": "User",
+      "name": "review.sent",
+      "payload_shape": {
+        "recipient": "string",
+        "reviewId": "string"
+      }
+    },
+    {
+      "consumed_by": "User, System",
+      "description": "Fired when a review is resolved.",
+      "emitted_by": "User, System",
+      "name": "review.resolved",
+      "payload_shape": {
+        "resolution_content": "string",
+        "reviewId": "string"
+      }
+    },
+    {
+      "consumed_by": "System",
+      "description": "Fired when a review is archived.",
+      "emitted_by": "User",
+      "name": "review.archived",
+      "payload_shape": {
+        "reviewId": "string"
+      }
+    },
+    {
+      "consumed_by": "User, System",
+      "description": "Fired when an action item is created.",
+      "emitted_by": "User, System",
+      "name": "action_item.created",
+      "payload_shape": {
+        "actionItemId": "string",
+        "content": "string",
+        "dueDate": "DateTime",
+        "itemId": "string"
+      }
+    },
+    {
+      "consumed_by": "User, System",
+      "description": "Fired when an action item's status changes.",
+      "emitted_by": "User, System",
+      "name": "action_item.status_changed",
+      "payload_shape": {
+        "actionItemId": "string",
+        "changeReason": "string",
+        "newStatus": "ActionStatus"
+      }
+    },
+    {
+      "consumed_by": "User, System",
+      "description": "Fired when a search is performed.",
+      "emitted_by": "User, System",
+      "name": "search.performed",
+      "payload_shape": {
+        "query": "string",
+        "results": {
+          "actionItemIds": "string[]",
+          "reviewIds": "string[]"
+        },
+        "searchId": "string",
+        "timestamp": "DateTime"
+      }
+    }
+  ],
+  "meta": {
+    "version": "1.0.0"
+  }
+}

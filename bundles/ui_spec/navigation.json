@@ -1,0 +1,54 @@
+{
+  "initial_route": "inbox",
+  "routes": [
+    {
+      "params": null,
+      "route": "/",
+      "screen": "inbox"
+    },
+    {
+      "params": [
+        "reviewId"
+      ],
+      "route": "/review-detail/:reviewId",
+      "screen": "review_detail"
+    },
+    {
+      "params": null,
+      "route": "/draft-reply",
+      "screen": "draft_reply"
+    },
+    {
+      "params": null,
+      "route": "/action-items",
+      "screen": "action_items"
+    },
+    {
+      "params": null,
+      "route": "/settings",
+      "screen": "settings"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "inbox",
+      "to": "review_detail",
+      "trigger": "CLICK_REVIEW"
+    },
+    {
+      "from": "review_detail",
+      "to": "draft_reply",
+      "trigger": "DRAFT_REPLY"
+    },
+    {
+      "from": "review_detail",
+      "to": "action_items",
+      "trigger": "ACTION_ITEMS"
+    },
+    {
+      "from": "any",
+      "to": "settings",
+      "trigger": "SETTINGS"
+    }
+  ]
+}

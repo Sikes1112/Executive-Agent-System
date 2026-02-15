@@ -1,0 +1,92 @@
+{
+  "fsm_vectors": [
+    {
+      "final_state": "RESOLVED",
+      "id": 1,
+      "initial_state": "NEW",
+      "machine": "ReviewLifecycle",
+      "steps": [
+        "paste_review",
+        "extract_issues",
+        "draft_reply",
+        "user_edit",
+        "mark_sent",
+        "resolve_follow_up"
+      ]
+    },
+    {
+      "final_state": "ARCHIVED",
+      "id": 2,
+      "initial_state": "RESOLVED",
+      "machine": "ReviewLifecycle",
+      "steps": [
+        "archive_review"
+      ]
+    },
+    {
+      "final_state": "DONE",
+      "id": 3,
+      "initial_state": "OPEN",
+      "machine": "ActionItemLifecycle",
+      "steps": [
+        "start_work",
+        "complete"
+      ]
+    }
+  ],
+  "invalid_steps": [
+    {
+      "event": "bogus_event",
+      "expected_error": "Invalid event 'bogus_event'",
+      "id": "A",
+      "machine": "ReviewLifecycle"
+    },
+    {
+      "expected_error": "Cannot transition directly from NEW to RESOLVED, missing steps ['extract_issues', 'draft_reply', 'user_edit']",
+      "id": "B",
+      "initial_state": "NEW",
+      "machine": "ReviewLifecycle",
+      "steps": [
+        "mark_sent"
+      ]
+    }
+  ],
+  "review_vectors": [
+    {
+      "content": "Great customer service! Everyone was very helpful and resolved my issue quickly.",
+      "expected_issue_labels": [
+        "resolved"
+      ],
+      "expected_reply_tone_hint": "thankful",
+      "expected_sentiment": "positive",
+      "id": 1
+    },
+    {
+      "content": "My order didn't arrive. Can someone track it for me?",
+      "expected_issue_labels": [
+        "pending_delivery"
+      ],
+      "expected_reply_tone_hint": "informative",
+      "expected_sentiment": "neutral",
+      "id": 2
+    },
+    {
+      "content": "I received the wrong item. Please send a replacement.",
+      "expected_issue_labels": [
+        "wrong_item"
+      ],
+      "expected_reply_tone_hint": "apologetic",
+      "expected_sentiment": "negative",
+      "id": 3
+    },
+    {
+      "content": "The product quality is terrible. I don't recommend spending money here.",
+      "expected_issue_labels": [
+        "poor_quality"
+      ],
+      "expected_reply_tone_hint": "firm",
+      "expected_sentiment": "negative",
+      "id": 4
+    }
+  ]
+}

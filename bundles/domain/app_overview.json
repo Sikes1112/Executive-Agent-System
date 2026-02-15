@@ -1,0 +1,59 @@
+{
+  "app_name": "Job Review Inbox",
+  "assumptions": [
+    "Operators have basic computer skills.",
+    "The app is used daily for review management.",
+    "Follow-ups are prioritized to maintain customer relationships.",
+    "Reviews can be categorized into a limited set of predefined tags.",
+    "Action items result in actionable improvements to business processes."
+  ],
+  "constraints": [
+    "Local-only (no cloud)",
+    "Deterministic spec pack + pure logic only",
+    "Review lifecycle is a state machine."
+  ],
+  "glossary": [
+    {
+      "definition": "A customer's feedback or comment on a job.",
+      "term": "Review"
+    },
+    {
+      "definition": "A label categorizing the nature of an issue found in a review.",
+      "term": "IssueTag"
+    },
+    {
+      "definition": "A suggested response to a customer review or issue.",
+      "term": "ReplyDraft"
+    },
+    {
+      "definition": "A specific task derived from reviewing a job to improve future service.",
+      "term": "ActionItem"
+    },
+    {
+      "definition": "The current progress stage of follow-up on a particular review thread.",
+      "term": "ThreadStatus"
+    }
+  ],
+  "non_goals": [
+    "Fetch Google/Yelp APIs",
+    "Auth/multi-user",
+    "Payments."
+  ],
+  "one_sentence": "A local-only inbox that turns pasted customer reviews into categorized issues, suggested replies, and trackable follow-ups.",
+  "primary_user": "Solo operator managing reputation + follow-ups for small businesses.",
+  "problem_statement": "The need to efficiently categorize and manage customer reviews to improve business reputation.",
+  "success_metrics": [
+    "Reduction in the average time to categorize each review.",
+    "Improvement in customer feedback response rate.",
+    "Decrease in repeat complaints based on reviews.",
+    "Increase in operator satisfaction with task management.",
+    "Enhancement in business reputation through timely and effective follow-ups."
+  ],
+  "user_journeys": [
+    "Pasting reviews into the inbox.",
+    "Categorizing reviews into different issue tags.",
+    "Generating reply drafts for each review.",
+    "Creating action items for process improvements.",
+    "Tracking the status of each follow-up thread."
+  ]
+}

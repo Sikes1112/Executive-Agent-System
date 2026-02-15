@@ -1,0 +1,167 @@
+{
+  "machines": [
+    {
+      "events": [
+        "paste_review",
+        "extract_issues",
+        "draft_reply",
+        "user_edit",
+        "mark_sent",
+        "resolve_follow_up",
+        "archive_review"
+      ],
+      "initial_state": "NEW",
+      "invariants": [
+        "Every review starts with a 'NEW' state."
+      ],
+      "name": "ReviewLifecycle",
+      "states": [
+        "NEW",
+        "ANALYZED",
+        "DRAFTED",
+        "EDITED",
+        "SENT",
+        "RESOLVED",
+        "ARCHIVED"
+      ],
+      "terminal_states": [
+        "RESOLVED",
+        "ARCHIVED"
+      ],
+      "transitions": [
+        {
+          "event": "paste_review",
+          "from": "NEW",
+          "to": "ANALYZED",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "extract_issues",
+          "from": "ANALYZED",
+          "to": "DRAFTED",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "draft_reply",
+          "from": "DRAFTED",
+          "to": "EDITED",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "user_edit",
+          "from": "EDITED",
+          "to": "DRAFTED",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "user_edit",
+          "from": "DRAFTED",
+          "to": "EDITED",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "mark_sent",
+          "from": "EDITED",
+          "to": "SENT",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "resolve_follow_up",
+          "from": "SENT",
+          "to": "RESOLVED",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "archive_review",
+          "from": "RESOLVED",
+          "to": "ARCHIVED",
+          "guards": [],
+          "actions": []
+        }
+      ]
+    },
+    {
+      "events": [
+        "start_work",
+        "pause_work",
+        "unblock",
+        "complete",
+        "cancel"
+      ],
+      "initial_state": "OPEN",
+      "invariants": [
+        "Action items must start in an 'OPEN' state."
+      ],
+      "name": "ActionItemLifecycle",
+      "states": [
+        "OPEN",
+        "IN_PROGRESS",
+        "BLOCKED",
+        "DONE",
+        "CANCELED"
+      ],
+      "terminal_states": [
+        "DONE",
+        "CANCELED"
+      ],
+      "transitions": [
+        {
+          "event": "start_work",
+          "from": "OPEN",
+          "to": "IN_PROGRESS",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "pause_work",
+          "from": "IN_PROGRESS",
+          "to": "BLOCKED",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "unblock",
+          "from": "BLOCKED",
+          "to": "IN_PROGRESS",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "complete",
+          "from": "IN_PROGRESS",
+          "to": "DONE",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "cancel",
+          "from": "OPEN",
+          "to": "CANCELED",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "cancel",
+          "from": "IN_PROGRESS",
+          "to": "CANCELED",
+          "guards": [],
+          "actions": []
+        },
+        {
+          "event": "cancel",
+          "from": "BLOCKED",
+          "to": "CANCELED",
+          "guards": [],
+          "actions": []
+        }
+      ]
+    }
+  ]
+}
