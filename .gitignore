@@ -37,7 +37,9 @@ env/
 # -----------------------
 # Audit output (IMPORTANT)
 # -----------------------
-audit/
+audit/*
+!audit/
+!audit/README.md
 
 # -----------------------
 # Lock files
