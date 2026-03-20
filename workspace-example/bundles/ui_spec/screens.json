@@ -1,0 +1,28 @@
+{
+  "screens": [
+    {
+      "id": "inbox"
+    },
+    {
+      "id": "review_detail"
+    },
+    {
+      "id": "draft_reply"
+    },
+    {
+      "id": "action_items"
+    },
+    {
+      "id": "settings"
+    },
+    {
+      "id": "profile"
+    },
+    {
+      "id": "system_overview",
+      "title": "System Overview",
+      "components": [],
+      "navigation": []
+    }
+  ]
+}
