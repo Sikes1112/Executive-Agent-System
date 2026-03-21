@@ -63,6 +63,8 @@ for path in ticket.get("target_paths", []):
             current_objects[path] = json.loads(txt)
 
 ticket["current_objects"] = current_objects
+if "domain" in ticket:
+    ticket["domain"] = ticket["domain"]
 
 print(json.dumps(ticket, indent=2))
 PY

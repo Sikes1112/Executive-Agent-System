@@ -26,6 +26,7 @@ from typing import Any, Dict, List, Tuple
 
 
 MAX_TICKETS_PER_BATCH = 20
+SUPPORTED_DOMAINS = {"iteration", "outreach", "reputationops"}
 
 
 def _fail(msg: str, details: Dict[str, Any] | None = None) -> None:
@@ -165,6 +166,11 @@ def main() -> None:
         if not isinstance(depends_on, list) or not all(isinstance(d, str) and d for d in depends_on):
             _fail("invalid_depends_on", {"ticket_id": tid})
         deps_map[tid] = depends_on
+
+        if "domain" in t:
+            domain = t["domain"]
+            if not isinstance(domain, str) or domain not in SUPPORTED_DOMAINS:
+                _fail("invalid_domain", {"ticket_id": tid, "domain": domain, "supported": sorted(SUPPORTED_DOMAINS)})
 
     # --- dependency reference validation ---
     unknown_deps: Dict[str, List[str]] = {}
