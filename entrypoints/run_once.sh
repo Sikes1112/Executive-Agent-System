@@ -158,6 +158,15 @@ fi
 echo "NORMALIZED_JSON_FILE=$NORM"
 
 if [ "$ADAPTER_SANITIZE_APPLY_SUPPORTED" != "1" ]; then
+  if [ "$ADAPTER_NAME" = "outreach" ]; then
+    RUN_DIR="$(dirname "$TICKET_FILE")"
+    TICKET_BASE="$(basename "$TICKET_FILE")"
+    TICKET_STEM="${TICKET_BASE%.*}"
+    OUTREACH_NORM_ARTIFACT="$RUN_DIR/${TICKET_STEM}.normalized.outreach.json"
+    cp -f "$NORM" "$OUTREACH_NORM_ARTIFACT"
+    echo "OUTREACH_SANITIZE_ONLY_OK domain=$ADAPTER_NAME normalized_artifact=$OUTREACH_NORM_ARTIFACT"
+    exit 0
+  fi
   echo "DOMAIN_RESULT_UNSUPPORTED domain=$ADAPTER_NAME stage=sanitize_complete reason=downstream_guards_and_apply_not_enabled_for_this_domain" >&2
   exit 45
 fi
