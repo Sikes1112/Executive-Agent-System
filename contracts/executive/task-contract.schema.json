@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Executive Task Contract",
+  "type": "object",
+  "required": [
+    "task_id",
+    "source_request",
+    "objective",
+    "deliverable",
+    "constraints",
+    "non_goals",
+    "acceptance_criteria",
+    "risk_level",
+    "assigned_specialist",
+    "tool_policy"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "Unique identifier for the task"
+    },
+    "source_request": {
+      "type": "string",
+      "description": "Original user or upstream request"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "deliverable": {
+      "type": "string"
+    },
+    "constraints": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "non_goals": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "assigned_specialist": {
+      "type": "string",
+      "description": "Single specialist responsible for execution"
+    },
+    "tool_policy": {
+      "type": "object",
+      "required": [
+        "allowed_tools",
+        "disallowed_tools",
+        "internet",
+        "file_mutation",
+        "allowed_paths",
+        "background_execution"
+      ],
+      "properties": {
+        "allowed_tools": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "disallowed_tools": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "internet": {
+          "type": "string",
+          "enum": ["off", "on_within_scope", "propose_only"]
+        },
+        "file_mutation": {
+          "type": "string",
+          "enum": ["none", "restricted", "allowed"]
+        },
+        "allowed_paths": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "background_execution": {
+          "type": "string",
+          "enum": ["off", "propose_only", "on_within_scope"]
+        }
+      }
+    },
+    "escalation_triggers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "created_at": {
+      "type": "string"
+    }
+  }
+}

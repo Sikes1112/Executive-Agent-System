@@ -1,0 +1,24 @@
+{
+  "approval_id": "approval-001",
+  "task_id": "task-001",
+  "delegation_id": "delegation-001",
+  "assigned_specialist": "iteration",
+  "decision": "approve",
+  "decision_reason": "Output meets objective, remains within scope, uses only approved tools, and satisfies all acceptance criteria.",
+  "drift_review": {
+    "goal_drift": false,
+    "scope_drift": false,
+    "tool_drift": false,
+    "format_drift": false,
+    "loop_drift": false,
+    "role_drift": false
+  },
+  "tool_compliance": "compliant",
+  "next_action": "Emit execution package for workspace-exec with approved bounded changes.",
+  "approved_execution_package_ref": "exec_pkg_001",
+  "revision_instructions": [],
+  "reroute_target": "",
+  "split_tasks": [],
+  "escalation_question": "",
+  "created_at": "2026-03-20T12:20:00Z"
+}

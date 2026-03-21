@@ -1,0 +1,87 @@
+{
+  "exec": {
+    "default_tool_state": "propose_only",
+    "internet": "propose_only",
+    "file_mutation": "none",
+    "background_execution": "propose_only",
+    "allowed_tools": [],
+    "disallowed_tools": ["direct_workspace_mutation", "unapproved_network_access"],
+    "allowed_paths": [],
+    "notes": [
+      "Exec governs but does not execute specialist work.",
+      "Exec may approve or deny escalations."
+    ]
+  },
+  "main": {
+    "default_tool_state": "propose_only",
+    "internet": "propose_only",
+    "file_mutation": "none",
+    "background_execution": "off",
+    "allowed_tools": [],
+    "disallowed_tools": ["direct_workspace_mutation", "structured_multi_step_execution"],
+    "allowed_paths": [],
+    "notes": [
+      "Main reasons and drafts but does not replace specialist domains."
+    ]
+  },
+  "continuity": {
+    "default_tool_state": "off",
+    "internet": "off",
+    "file_mutation": "none",
+    "background_execution": "off",
+    "allowed_tools": [],
+    "disallowed_tools": ["direct_memory_write", "workspace_mutation", "internet_access"],
+    "allowed_paths": [],
+    "notes": [
+      "Continuity summarizes state and proposes next steps only."
+    ]
+  },
+  "research": {
+    "default_tool_state": "off",
+    "internet": "on_within_scope",
+    "file_mutation": "none",
+    "background_execution": "propose_only",
+    "allowed_tools": ["web_search", "source_comparison"],
+    "disallowed_tools": ["workspace_mutation", "unapproved_background_jobs"],
+    "allowed_paths": [],
+    "notes": [
+      "Research may gather information only when Exec approves scope."
+    ]
+  },
+  "stabilizer": {
+    "default_tool_state": "propose_only",
+    "internet": "propose_only",
+    "file_mutation": "restricted",
+    "background_execution": "off",
+    "allowed_tools": ["diagnostic_read", "minimal_fix_proposal"],
+    "disallowed_tools": ["broad_refactor", "unapproved_scope_expansion"],
+    "allowed_paths": [],
+    "notes": [
+      "Stabilizer diagnoses and isolates root causes before changes."
+    ]
+  },
+  "iteration": {
+    "default_tool_state": "propose_only",
+    "internet": "off",
+    "file_mutation": "restricted",
+    "background_execution": "off",
+    "allowed_tools": ["patch_proposal", "refactor_proposal", "ui_improvement_proposal"],
+    "disallowed_tools": ["architecture_redesign", "unapproved_scope_expansion"],
+    "allowed_paths": [],
+    "notes": [
+      "Iteration handles bounded improvements and refactors."
+    ]
+  },
+  "executor": {
+    "default_tool_state": "on_within_scope",
+    "internet": "off",
+    "file_mutation": "allowed",
+    "background_execution": "on_within_scope",
+    "allowed_tools": ["deterministic_generation", "mechanical_transformation", "approved_execution"],
+    "disallowed_tools": ["creative_scope_expansion", "destructive_unapproved_commands"],
+    "allowed_paths": [],
+    "notes": [
+      "Executor performs deterministic work only within approved boundaries."
+    ]
+  }
+}

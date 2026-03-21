@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Executive Approval Record",
+  "type": "object",
+  "required": [
+    "approval_id",
+    "task_id",
+    "delegation_id",
+    "assigned_specialist",
+    "decision",
+    "decision_reason",
+    "drift_review",
+    "tool_compliance",
+    "next_action",
+    "created_at"
+  ],
+  "properties": {
+    "approval_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "delegation_id": {
+      "type": "string"
+    },
+    "assigned_specialist": {
+      "type": "string"
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["approve", "revise", "reroute", "split", "escalate"]
+    },
+    "decision_reason": {
+      "type": "string"
+    },
+    "drift_review": {
+      "type": "object",
+      "required": [
+        "goal_drift",
+        "scope_drift",
+        "tool_drift",
+        "format_drift",
+        "loop_drift",
+        "role_drift"
+      ],
+      "properties": {
+        "goal_drift": { "type": "boolean" },
+        "scope_drift": { "type": "boolean" },
+        "tool_drift": { "type": "boolean" },
+        "format_drift": { "type": "boolean" },
+        "loop_drift": { "type": "boolean" },
+        "role_drift": { "type": "boolean" }
+      }
+    },
+    "tool_compliance": {
+      "type": "string",
+      "enum": ["compliant", "non_compliant", "not_applicable"]
+    },
+    "next_action": {
+      "type": "string",
+      "description": "Concrete next step decided by Exec"
+    },
+    "approved_execution_package_ref": {
+      "type": "string",
+      "description": "Reference to execution package if decision is approve"
+    },
+    "revision_instructions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "reroute_target": {
+      "type": "string"
+    },
+    "split_tasks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "escalation_question": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "delegation_id": "delegation-001",
+  "task_id": "task-001",
+  "assigned_specialist": "iteration",
+  "objective": "Improve clarity and credibility of the landing page hero section without changing overall product positioning.",
+  "deliverable": "A bounded hero-section improvement proposal with concrete recommended changes and rationale.",
+  "constraints": [
+    "Limit scope to the landing page hero section.",
+    "Do not redesign the full site.",
+    "Do not invent new product features.",
+    "Do not change pricing, branding, or core product positioning."
+  ],
+  "non_goals": [
+    "Full homepage redesign",
+    "Pricing strategy changes",
+    "Brand overhaul",
+    "New feature definition"
+  ],
+  "acceptance_criteria": [
+    "Hero section value proposition is clearer.",
+    "At least two credibility/trust improvements are identified.",
+    "Changes remain limited to the approved scope.",
+    "No new product claims are introduced."
+  ],
+  "tool_policy": {
+    "allowed_tools": [
+      "patch_proposal",
+      "ui_improvement_proposal"
+    ],
+    "disallowed_tools": [
+      "architecture_redesign",
+      "unapproved_scope_expansion"
+    ],
+    "internet": "off",
+    "file_mutation": "restricted",
+    "allowed_paths": [
+      "frontend/",
+      "ui/",
+      "landing/"
+    ],
+    "background_execution": "off"
+  },
+  "output_requirements": [
+    "Return a concise summary of the proposed changes.",
+    "List the specific hero-section improvements.",
+    "Explain why each change improves clarity or credibility.",
+    "Do not include changes outside the approved scope."
+  ],
+  "escalation_conditions": [
+    "Hero section files cannot be identified confidently.",
+    "Required change expands beyond approved scope.",
+    "Credibility improvement requires product-positioning changes."
+  ],
+  "created_at": "2026-03-20T12:10:00Z"
+}
