@@ -1,5 +1,8 @@
+import argparse
 import json, os, sys
 from pathlib import Path
+
+REGISTRY_PATH = Path(__file__).resolve().parents[1] / "domain_adapters" / "registry.json"
 
 def load_ids(obj):
     if isinstance(obj, dict) and "screens" in obj and isinstance(obj["screens"], list):
@@ -14,16 +17,46 @@ def load_ids(obj):
             ids.add(s["id"])
     return ids
 
+def resolve_guard_behavior(ticket: dict | None, domain_override: str | None) -> str:
+    if domain_override is not None:
+        domain_raw = domain_override
+    else:
+        domain_raw = ticket.get("domain") if isinstance(ticket, dict) else None
+
+    if domain_raw is None:
+        domain = "iteration"
+    elif not isinstance(domain_raw, str):
+        raise ValueError("invalid_domain_type")
+    else:
+        domain = domain_raw.strip() or "iteration"
+
+    registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    adapters = registry.get("adapters")
+    if not isinstance(adapters, dict):
+        raise ValueError("invalid_adapter_registry")
+    if domain not in adapters:
+        raise ValueError(f"unknown_domain:{domain}")
+
+    adapter = adapters.get(domain)
+    if not isinstance(adapter, dict):
+        raise ValueError(f"invalid_adapter:{domain}")
+    guard_behavior = adapter.get("guard_behavior")
+    if not isinstance(guard_behavior, str) or not guard_behavior.strip():
+        raise ValueError(f"invalid_guard_behavior:{domain}")
+    return guard_behavior.strip()
+
 def main():
     script_dir = Path(__file__).resolve().parent
     workspace_root = Path(os.environ.get("WORKSPACE_ROOT", str(script_dir.parents[2]))).expanduser().resolve()
 
-    if len(sys.argv) < 2:
-        print("usage: entity_guard.py <normalized_json_file> [ticket_json_file]", file=sys.stderr)
-        return 2
+    ap = argparse.ArgumentParser()
+    ap.add_argument("normalized_json_file")
+    ap.add_argument("ticket_json_file", nargs="?")
+    ap.add_argument("--domain", required=False)
+    args = ap.parse_args()
 
-    norm_path = Path(sys.argv[1])
-    ticket_path = Path(sys.argv[2]) if len(sys.argv) >= 3 else None
+    norm_path = Path(args.normalized_json_file)
+    ticket_path = Path(args.ticket_json_file) if args.ticket_json_file else None
 
     current_path = workspace_root / "workspace-example/bundles/ui_spec/screens.json"
     if not current_path.exists():
@@ -34,6 +67,7 @@ def main():
 
     # Optional per-ticket override: allow specific new IDs only.
     allow_new = set()
+    ticket = None
     if ticket_path and ticket_path.exists():
         try:
             ticket = json.loads(ticket_path.read_text())
@@ -43,6 +77,19 @@ def main():
         except Exception:
             # If ticket is unreadable, ignore override (fail-closed behavior stays).
             allow_new = set()
+
+    try:
+        guard_behavior = resolve_guard_behavior(ticket, args.domain)
+    except ValueError as e:
+        print(f"SCREENS_GUARD_FAIL {e}", file=sys.stderr)
+        return 2
+
+    if guard_behavior == "passthrough":
+        print("SCREENS_GUARD_PASS (passthrough)")
+        return 0
+    if guard_behavior != "iteration":
+        print(f"SCREENS_GUARD_FAIL unsupported_guard_behavior:{guard_behavior}", file=sys.stderr)
+        return 2
 
     norm = json.loads(norm_path.read_text())
     bundles = norm.get("bundles") or []
