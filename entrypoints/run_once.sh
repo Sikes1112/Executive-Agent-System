@@ -48,6 +48,7 @@ try:
     loader = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(loader)
     adapter = loader.get_adapter(domain)
+    result_handling = loader.get_result_handling(domain)
 except Exception as exc:
     print(f"adapter lookup failed for domain={domain!r}: {exc}", file=sys.stderr)
     sys.exit(1)
@@ -69,8 +70,16 @@ if not isinstance(prompt_path, str) or not prompt_path.strip():
 if not isinstance(lock_suffix, str) or not re.fullmatch(r"[A-Za-z0-9_.-]+", lock_suffix):
     print("adapter missing valid 'lock_suffix' or fallback name", file=sys.stderr)
     sys.exit(1)
+if not isinstance(result_handling, dict):
+    print("adapter missing valid 'result_handling'", file=sys.stderr)
+    sys.exit(1)
 
-print(f"{name}\t{prompt_path}\t{lock_suffix}")
+sanitize_apply_supported = result_handling.get("sanitize_apply_supported")
+if not isinstance(sanitize_apply_supported, bool):
+    print("adapter result_handling missing boolean 'sanitize_apply_supported'", file=sys.stderr)
+    sys.exit(1)
+
+print(f"{name}\t{prompt_path}\t{lock_suffix}\t{int(sanitize_apply_supported)}")
 PY
 )"
 ADAPTER_EXIT=$?
@@ -79,7 +88,7 @@ if [ "$ADAPTER_EXIT" -ne 0 ]; then
   echo "ADAPTER_RESOLUTION_FAIL ticket=$TICKET_FILE" >&2
   exit 44
 fi
-IFS=$'\t' read -r ADAPTER_NAME ADAPTER_PROMPT_PATH ADAPTER_LOCK_SUFFIX <<< "$ADAPTER_META"
+IFS=$'\t' read -r ADAPTER_NAME ADAPTER_PROMPT_PATH ADAPTER_LOCK_SUFFIX ADAPTER_SANITIZE_APPLY_SUPPORTED <<< "$ADAPTER_META"
 
 # ---------------------------
 # SINGLE-WRITER LOCK (structural)
@@ -147,6 +156,11 @@ if [ "$SANITIZE_EXIT" -ne 0 ]; then
 fi
 
 echo "NORMALIZED_JSON_FILE=$NORM"
+
+if [ "$ADAPTER_SANITIZE_APPLY_SUPPORTED" != "1" ]; then
+  echo "DOMAIN_RESULT_UNSUPPORTED domain=$ADAPTER_NAME stage=sanitize_complete reason=downstream_guards_and_apply_not_enabled_for_this_domain" >&2
+  exit 45
+fi
 
 python3 "$WORKSPACE_ROOT/core/pipeline/field_guard.py" \
   --normalized "$NORM" \
