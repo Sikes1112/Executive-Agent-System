@@ -97,6 +97,61 @@ def validate_patch_mode(obj: Any) -> Dict[str, Any]:
 
     return obj
 
+def validate_outreach_generation_mode(obj: Any) -> Dict[str, Any]:
+    if not isinstance(obj, dict):
+        fail("outreach_not_object", {"type": type(obj).__name__})
+
+    required_top = ["mode", "iteration", "result", "notes"]
+    missing = [k for k in required_top if k not in obj]
+    if missing:
+        fail("outreach_missing_required_top_level_keys", {"missing": missing})
+
+    if obj["mode"] != "generation":
+        fail("outreach_invalid_mode", {"mode": obj["mode"]})
+
+    iteration = obj["iteration"]
+    if not isinstance(iteration, dict):
+        fail("outreach_invalid_iteration", {"type": type(iteration).__name__})
+
+    result = obj["result"]
+    if not isinstance(result, dict):
+        fail("outreach_invalid_result", {"type": type(result).__name__})
+
+    required_result = ["status", "summary", "artifacts"]
+    missing_result = [k for k in required_result if k not in result]
+    if missing_result:
+        fail("outreach_missing_result_keys", {"missing": missing_result})
+
+    if result["status"] not in {"ok", "needs_input", "blocked"}:
+        fail("outreach_invalid_status", {"status": result["status"]})
+
+    if not isinstance(result["summary"], str):
+        fail("outreach_invalid_summary", {"type": type(result["summary"]).__name__})
+
+    artifacts = result["artifacts"]
+    if not isinstance(artifacts, list):
+        fail("outreach_invalid_artifacts", {"type": type(artifacts).__name__})
+
+    for i, artifact in enumerate(artifacts):
+        if not isinstance(artifact, dict):
+            fail("outreach_artifact_not_object", {"index": i, "type": type(artifact).__name__})
+        required_artifact = ["name", "type", "content"]
+        missing_artifact = [k for k in required_artifact if k not in artifact]
+        if missing_artifact:
+            fail("outreach_artifact_missing_fields", {"index": i, "missing": missing_artifact})
+        if not isinstance(artifact["name"], str) or not artifact["name"].strip():
+            fail("outreach_invalid_artifact_name", {"index": i})
+        if not isinstance(artifact["type"], str) or not artifact["type"].strip():
+            fail("outreach_invalid_artifact_type", {"index": i})
+        if not isinstance(artifact["content"], (dict, str)):
+            fail("outreach_invalid_artifact_content", {"index": i, "type": type(artifact["content"]).__name__})
+
+    notes = obj["notes"]
+    if not isinstance(notes, list) or not all(isinstance(x, str) for x in notes):
+        fail("outreach_invalid_notes")
+
+    return obj
+
 def normalize_for_domain(obj: Any, domain: str) -> Dict[str, Any]:
     normalized_domain = domain.strip().lower() if isinstance(domain, str) else ""
     if not normalized_domain:
@@ -104,6 +159,8 @@ def normalize_for_domain(obj: Any, domain: str) -> Dict[str, Any]:
 
     if normalized_domain == "iteration":
         return validate_patch_mode(obj)
+    if normalized_domain == "outreach":
+        return validate_outreach_generation_mode(obj)
 
     fail("unsupported_result_mode_or_domain", {"domain": normalized_domain})
 
