@@ -292,6 +292,7 @@ def build_workspace_exec_envelope(
 
     ticket = {
         "ticket_id": ticket_id,
+        "domain": "iteration",
         "intent_summary": approved_scope["objective"],
         "patch_scope": "wide",
         "target_paths": normalized_target_paths,
