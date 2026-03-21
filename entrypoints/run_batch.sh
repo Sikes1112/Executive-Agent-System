@@ -85,6 +85,13 @@ PY
       exit "$RUN_ONCE_EXIT"
     fi
   fi
+
+  if [ "$ARTIFACT_DOMAIN" = "outreach" ]; then
+    OUTREACH_META_PATH="$(awk -F= '/^OUTREACH_METADATA_ARTIFACT=/{print $2}' "$OUTPUT_FILE" | tail -n1)"
+    if [ -n "${OUTREACH_META_PATH:-}" ] && [ -f "$OUTREACH_META_PATH" ]; then
+      cp -f "$OUTREACH_META_PATH" "$RUN_DIR/"
+    fi
+  fi
 done
 
 echo "EXEC_RUN_DIR=$RUN_DIR"
