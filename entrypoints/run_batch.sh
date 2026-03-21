@@ -71,8 +71,20 @@ PY
 
   ARTIFACT_DOMAIN="$(python3 -c "import json; t=json.load(open('$TICKET_JSON')); print(t.get('domain') or 'iteration')")"
 
+  OUTPUT_FILE="$RUN_DIR/${TID}_${ARTIFACT_DOMAIN}_output.txt"
+  set +e
   WORKSPACE_ROOT="$WORKSPACE_ROOT" AUDIT_ROOT="$AUDIT_ROOT" \
-    MAX_TICKET_CHARS=6000 "$WORKSPACE_ROOT/entrypoints/run_once.sh" "$TICKET_JSON" > "$RUN_DIR/${TID}_${ARTIFACT_DOMAIN}_output.txt" 2>&1
+    MAX_TICKET_CHARS=6000 "$WORKSPACE_ROOT/entrypoints/run_once.sh" "$TICKET_JSON" > "$OUTPUT_FILE" 2>&1
+  RUN_ONCE_EXIT=$?
+  set -e
+
+  if [ "$RUN_ONCE_EXIT" -ne 0 ]; then
+    if [ "$ARTIFACT_DOMAIN" = "outreach" ] && grep -q "OUTREACH_SANITIZE_ONLY_OK" "$OUTPUT_FILE"; then
+      :
+    else
+      exit "$RUN_ONCE_EXIT"
+    fi
+  fi
 done
 
 echo "EXEC_RUN_DIR=$RUN_DIR"
