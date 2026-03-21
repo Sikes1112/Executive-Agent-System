@@ -18,7 +18,39 @@
       "guard_behavior": "passthrough",
       "result_handling": {
         "result_mode": "generation",
-        "sanitize_apply_supported": false
+        "sanitize_apply_supported": false,
+        "normalized_result_contract": {
+          "contract_id": "normalized_generation_result.v1",
+          "status": "target_only_not_enforced",
+          "required_top_level_keys": [
+            "mode",
+            "iteration",
+            "result",
+            "notes"
+          ],
+          "field_requirements": {
+            "mode": "must be the literal string 'generation'",
+            "iteration": "must preserve input iteration metadata exactly as-is",
+            "result": {
+              "required_keys": [
+                "status",
+                "summary",
+                "artifacts"
+              ],
+              "status_values": [
+                "ok",
+                "needs_input",
+                "blocked"
+              ],
+              "artifacts_item_shape": [
+                "name",
+                "type",
+                "content"
+              ]
+            },
+            "notes": "array of strings"
+          }
+        }
       }
     },
     "reputationops": {
