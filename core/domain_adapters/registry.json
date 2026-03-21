@@ -5,19 +5,31 @@
       "name": "iteration",
       "prompt_path": "core/prompts/iteration_specialist.md",
       "mode": "mutation",
-      "guard_behavior": "iteration"
+      "guard_behavior": "iteration",
+      "result_handling": {
+        "result_mode": "mutation",
+        "sanitize_apply_supported": true
+      }
     },
     "outreach": {
       "name": "outreach",
       "prompt_path": "core/prompts/outreach_specialist.md",
       "mode": "generation",
-      "guard_behavior": "passthrough"
+      "guard_behavior": "passthrough",
+      "result_handling": {
+        "result_mode": "generation",
+        "sanitize_apply_supported": false
+      }
     },
     "reputationops": {
       "name": "reputationops",
       "prompt_path": "core/prompts/reputationops_specialist.md",
       "mode": "pipeline",
-      "guard_behavior": "passthrough"
+      "guard_behavior": "passthrough",
+      "result_handling": {
+        "result_mode": "pipeline",
+        "sanitize_apply_supported": false
+      }
     }
   }
 }

@@ -26,3 +26,19 @@ def get_adapter(domain: str | None) -> dict[str, Any]:
         raise ValueError(f"Adapter definition not found for domain: {key}")
 
     return adapter
+
+
+def get_result_handling(domain: str | None) -> dict[str, Any]:
+    adapter = get_adapter(domain)
+    mode = str(adapter.get("mode", "mutation"))
+    raw = adapter.get("result_handling")
+    if isinstance(raw, dict):
+        return {
+            "result_mode": str(raw.get("result_mode", mode)),
+            "sanitize_apply_supported": bool(raw.get("sanitize_apply_supported", False)),
+        }
+
+    return {
+        "result_mode": mode,
+        "sanitize_apply_supported": mode == "mutation",
+    }
