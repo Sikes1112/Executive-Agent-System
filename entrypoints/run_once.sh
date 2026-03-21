@@ -135,7 +135,7 @@ fi
 echo "RUN_RECEIPT ticket=$TICKET_FILE provider=$ITERATION_PROVIDER model=$ITERATION_MODEL prompt=$SYSTEM_PROMPT_PATH txt=$TXT norm=$NORM"
 
 set +e
-python3 "$WORKSPACE_ROOT/core/pipeline/sanitize.py" --text-file "$TXT" > "$NORM"
+python3 "$WORKSPACE_ROOT/core/pipeline/sanitize.py" --text-file "$TXT" --domain "$ADAPTER_NAME" > "$NORM"
 SANITIZE_EXIT=$?
 set -e
 if [ "$SANITIZE_EXIT" -ne 0 ]; then

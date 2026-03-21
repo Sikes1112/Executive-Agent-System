@@ -97,10 +97,21 @@ def validate_patch_mode(obj: Any) -> Dict[str, Any]:
 
     return obj
 
+def normalize_for_domain(obj: Any, domain: str) -> Dict[str, Any]:
+    normalized_domain = domain.strip().lower() if isinstance(domain, str) else ""
+    if not normalized_domain:
+        normalized_domain = "iteration"
+
+    if normalized_domain == "iteration":
+        return validate_patch_mode(obj)
+
+    fail("unsupported_result_mode_or_domain", {"domain": normalized_domain})
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--text-file", help="File containing raw model payload text")
     ap.add_argument("--stdin", action="store_true", help="Read raw payload text from stdin")
+    ap.add_argument("--domain", help="Expected domain for result normalization")
     args = ap.parse_args()
 
     if bool(args.text_file) == bool(args.stdin):
@@ -135,10 +146,9 @@ def main() -> None:
         else:
             fail("invalid_json", {"exception": str(e), "has_backticks": has_backticks})
 
-    normalized = validate_patch_mode(obj)
+    normalized = normalize_for_domain(obj, args.domain or "iteration")
 
     sys.stdout.write(json.dumps(normalized, indent=2) + "\n")
 
 if __name__ == "__main__":
     main()
-
