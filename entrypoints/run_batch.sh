@@ -69,8 +69,10 @@ if "domain" in ticket:
 print(json.dumps(ticket, indent=2))
 PY
 
+  ARTIFACT_DOMAIN="$(python3 -c "import json; t=json.load(open('$TICKET_JSON')); print(t.get('domain') or 'iteration')")"
+
   WORKSPACE_ROOT="$WORKSPACE_ROOT" AUDIT_ROOT="$AUDIT_ROOT" \
-    MAX_TICKET_CHARS=6000 "$WORKSPACE_ROOT/entrypoints/run_once.sh" "$TICKET_JSON" > "$RUN_DIR/${TID}_iteration_output.txt" 2>&1
+    MAX_TICKET_CHARS=6000 "$WORKSPACE_ROOT/entrypoints/run_once.sh" "$TICKET_JSON" > "$RUN_DIR/${TID}_${ARTIFACT_DOMAIN}_output.txt" 2>&1
 done
 
 echo "EXEC_RUN_DIR=$RUN_DIR"
