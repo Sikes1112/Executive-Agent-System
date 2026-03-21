@@ -182,6 +182,30 @@ PY
     echo "OUTREACH_SANITIZE_ONLY_OK domain=$ADAPTER_NAME normalized_artifact=$OUTREACH_NORM_ARTIFACT"
     exit 0
   fi
+  if [ "$ADAPTER_NAME" = "reputationops" ]; then
+    RUN_DIR="$(dirname "$TICKET_FILE")"
+    TICKET_BASE="$(basename "$TICKET_FILE")"
+    TICKET_STEM="${TICKET_BASE%.*}"
+    REPUTATIONOPS_NORM_ARTIFACT="$RUN_DIR/${TICKET_STEM}.normalized.reputationops.json"
+    REPUTATIONOPS_META_ARTIFACT="$RUN_DIR/${TICKET_STEM}.metadata.reputationops.json"
+    REPUTATIONOPS_TICKET_ID="$(python3 -c "import json; t=json.load(open('$TICKET_FILE')); print(t.get('ticket_id',''))")"
+    cp -f "$NORM" "$REPUTATIONOPS_NORM_ARTIFACT"
+    python3 - <<PY > "$REPUTATIONOPS_META_ARTIFACT"
+import json
+
+print(json.dumps({
+  "ticket_id": "$REPUTATIONOPS_TICKET_ID",
+  "domain": "$ADAPTER_NAME",
+  "handling_mode": "sanitize_only_non_mutation",
+  "status": "ok",
+  "normalized_artifact": "$REPUTATIONOPS_NORM_ARTIFACT",
+  "run_stage_reached": "sanitize_complete"
+}, indent=2))
+PY
+    echo "REPUTATIONOPS_METADATA_ARTIFACT=$REPUTATIONOPS_META_ARTIFACT"
+    echo "REPUTATIONOPS_SANITIZE_ONLY_OK domain=$ADAPTER_NAME normalized_artifact=$REPUTATIONOPS_NORM_ARTIFACT"
+    exit 0
+  fi
   echo "DOMAIN_RESULT_UNSUPPORTED domain=$ADAPTER_NAME stage=sanitize_complete reason=downstream_guards_and_apply_not_enabled_for_this_domain" >&2
   exit 45
 fi

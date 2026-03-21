@@ -81,6 +81,8 @@ PY
   if [ "$RUN_ONCE_EXIT" -ne 0 ]; then
     if [ "$ARTIFACT_DOMAIN" = "outreach" ] && grep -q "OUTREACH_SANITIZE_ONLY_OK" "$OUTPUT_FILE"; then
       :
+    elif [ "$ARTIFACT_DOMAIN" = "reputationops" ] && grep -q "REPUTATIONOPS_SANITIZE_ONLY_OK" "$OUTPUT_FILE"; then
+      :
     else
       exit "$RUN_ONCE_EXIT"
     fi
@@ -90,6 +92,12 @@ PY
     OUTREACH_META_PATH="$(awk -F= '/^OUTREACH_METADATA_ARTIFACT=/{print $2}' "$OUTPUT_FILE" | tail -n1)"
     if [ -n "${OUTREACH_META_PATH:-}" ] && [ -f "$OUTREACH_META_PATH" ]; then
       cp -f "$OUTREACH_META_PATH" "$RUN_DIR/"
+    fi
+  fi
+  if [ "$ARTIFACT_DOMAIN" = "reputationops" ]; then
+    REPUTATIONOPS_META_PATH="$(awk -F= '/^REPUTATIONOPS_METADATA_ARTIFACT=/{print $2}' "$OUTPUT_FILE" | tail -n1)"
+    if [ -n "${REPUTATIONOPS_META_PATH:-}" ] && [ -f "$REPUTATIONOPS_META_PATH" ]; then
+      cp -f "$REPUTATIONOPS_META_PATH" "$RUN_DIR/"
     fi
   fi
 done
