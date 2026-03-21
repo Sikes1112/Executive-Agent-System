@@ -42,3 +42,16 @@ def get_result_handling(domain: str | None) -> dict[str, Any]:
         "result_mode": mode,
         "sanitize_apply_supported": mode == "mutation",
     }
+
+
+def get_result_contract_metadata(domain: str | None) -> dict[str, Any] | None:
+    adapter = get_adapter(domain)
+    raw = adapter.get("result_handling")
+    if not isinstance(raw, dict):
+        return None
+
+    contract = raw.get("normalized_result_contract")
+    if not isinstance(contract, dict):
+        return None
+
+    return contract
