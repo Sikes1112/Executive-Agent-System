@@ -49,6 +49,10 @@ Check that the Task Contract includes:
 - assigned_specialist
 - tool_policy
 
+Do NOT require these fields in the Task Contract (they are delegation-layer outputs):
+- output_requirements
+- escalation_conditions
+
 If any of these are missing or unclear, output:
 
 {
@@ -61,6 +65,17 @@ and stop.
 ---
 
 ## Structural preservation rule (CRITICAL)
+
+You must preserve these fields exactly as bounded in the Task Contract:
+- objective
+- deliverable
+- constraints
+- non_goals
+- acceptance_criteria
+- assigned_specialist
+- tool_policy
+
+Do not weaken, reinterpret, or broaden any of them.
 
 If the task contract includes constraints such as:
 - keep the existing layout
@@ -103,6 +118,10 @@ Create a Delegation Brief matching this structure:
 - output_requirements
 - escalation_conditions
 - created_at
+
+You MUST generate:
+- output_requirements (array of concrete specialist return requirements)
+- escalation_conditions (array of concrete escalation triggers)
 
 ---
 

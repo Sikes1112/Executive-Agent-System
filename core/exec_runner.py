@@ -112,6 +112,33 @@ PLACEHOLDER_PATH_MARKERS = {
     "TBD",
 }
 
+TASK_CONTRACT_REQUIRED_FIELDS = {
+    "task_id",
+    "source_request",
+    "objective",
+    "deliverable",
+    "constraints",
+    "non_goals",
+    "acceptance_criteria",
+    "risk_level",
+    "assigned_specialist",
+    "tool_policy",
+}
+
+DELEGATION_BRIEF_REQUIRED_FIELDS = {
+    "delegation_id",
+    "task_id",
+    "assigned_specialist",
+    "objective",
+    "deliverable",
+    "constraints",
+    "non_goals",
+    "acceptance_criteria",
+    "tool_policy",
+    "output_requirements",
+    "escalation_conditions",
+}
+
 
 def normalize_specialist(name: str) -> str:
     lowered = name.strip().lower()
@@ -196,7 +223,34 @@ def normalize_task_contract(task_contract: dict[str, Any]) -> dict[str, Any]:
     return normalized
 
 
+def _missing_or_empty_fields(payload: dict[str, Any], required: set[str]) -> list[str]:
+    missing = []
+    for field in sorted(required):
+        if field not in payload:
+            missing.append(field)
+            continue
+
+        value = payload[field]
+        if value is None:
+            missing.append(field)
+            continue
+        if isinstance(value, str) and not value.strip():
+            missing.append(field)
+            continue
+        if isinstance(value, (list, dict)) and not value:
+            missing.append(field)
+            continue
+    return missing
+
+
 def validate_task_contract_grounding(task_contract: dict[str, Any]) -> None:
+    missing = _missing_or_empty_fields(task_contract, TASK_CONTRACT_REQUIRED_FIELDS)
+    if missing:
+        raise ValueError(
+            "Task contract missing required bounded fields: "
+            + ", ".join(missing)
+        )
+
     specialist = task_contract.get("assigned_specialist")
     if specialist not in CANONICAL_SPECIALISTS:
         raise ValueError(
@@ -209,10 +263,24 @@ def validate_task_contract_grounding(task_contract: dict[str, Any]) -> None:
         raise ValueError(f"Task contract contains placeholder allowed_paths: {paths}")
 
 
+def validate_delegation_brief(delegation_brief: dict[str, Any]) -> None:
+    missing = _missing_or_empty_fields(
+        delegation_brief, DELEGATION_BRIEF_REQUIRED_FIELDS
+    )
+    if missing:
+        raise ValueError(
+            "Delegation brief missing required fields: " + ", ".join(missing)
+        )
+
+
 def run_delegation(task_contract: dict[str, Any]) -> dict[str, Any]:
     prompt = read_text(PROMPTS_DIR / "manual-delegation-prompt.md")
     output = call_model(prompt, json.dumps(task_contract, indent=2))
     parsed = extract_json_block(output)
+    if parsed.get("status") == "delegation_blocked":
+        reason = parsed.get("reason", "unknown reason")
+        raise RuntimeError(f"Delegation blocked: {reason}")
+    validate_delegation_brief(parsed)
     return parsed
 
 
