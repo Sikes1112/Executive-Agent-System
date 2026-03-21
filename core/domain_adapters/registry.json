@@ -1,0 +1,23 @@
+{
+  "default": "iteration",
+  "adapters": {
+    "iteration": {
+      "name": "iteration",
+      "prompt_path": "core/prompts/iteration_specialist.md",
+      "mode": "mutation",
+      "guard_behavior": "iteration"
+    },
+    "outreach": {
+      "name": "outreach",
+      "prompt_path": "core/prompts/outreach_specialist.md",
+      "mode": "generation",
+      "guard_behavior": "passthrough"
+    },
+    "reputationops": {
+      "name": "reputationops",
+      "prompt_path": "core/prompts/reputationops_specialist.md",
+      "mode": "pipeline",
+      "guard_behavior": "passthrough"
+    }
+  }
+}

@@ -96,7 +96,14 @@ Shape
   "target_paths": ["<bundle-relative-path>", "..."],
   "risk_level": "low | medium | high",
   "depends_on": ["<ticket_id>", "..."],
-  "allow_new_screen_ids": ["<screen_id>", "..."]
+  "allow_new_screen_ids": ["<screen_id>", "..."],
+  "mutation_targets": [
+    {
+      "file": "<bundle-relative-path>",
+      "object_id": "<string>",
+      "fields": ["<string>", "..."]
+    }
+  ]
 }
 Required fields
 Field	Required
@@ -107,6 +114,7 @@ target_paths	yes
 risk_level	yes
 depends_on	yes
 allow_new_screen_ids	no
+mutation_targets	no
 depends_on must be present even when empty:
 "depends_on": []
 Field semantics
@@ -148,6 +156,10 @@ Optional permission list for new screen IDs introduced through bundles/ui_spec/s
 Example:
 "allow_new_screen_ids": ["settings_screen", "profile_screen"]
 If a ticket introduces new screen IDs and those IDs are not listed here, entity_guard.py rejects the mutation.
+mutation_targets
+Optional deterministic object-level anchors for iteration.
+Each item identifies the file, object_id, and fields to mutate.
+Iteration should prioritize mutation_targets and use notes as guidance.
 Invalid ticket conditions
 Condition	Enforced by	Effect
 Missing required field	core/batch/validate.py	Batch fails

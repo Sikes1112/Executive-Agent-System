@@ -40,7 +40,7 @@ Treat it as the source of truth.
 
 ## Step 1 — Validate delegation readiness
 
-Check that the Task Contract includes:
+Check that the Task Contract includes only these readiness fields:
 - objective
 - deliverable
 - constraints
@@ -49,11 +49,11 @@ Check that the Task Contract includes:
 - assigned_specialist
 - tool_policy
 
-Do NOT require these fields in the Task Contract (they are delegation-layer outputs):
+Do NOT require these fields in the Task Contract (they are delegation-layer outputs generated in Step 2):
 - output_requirements
 - escalation_conditions
 
-If any of these are missing or unclear, output:
+If any required readiness field is missing or unclear, output:
 
 {
   "status": "delegation_blocked",
@@ -61,6 +61,8 @@ If any of these are missing or unclear, output:
 }
 
 and stop.
+
+Never return `delegation_blocked` because `output_requirements` or `escalation_conditions` are absent from the Task Contract.
 
 ---
 

@@ -1,10 +1,12 @@
 {
+  "_full_object": true,
   "screens": [
     {
       "id": "inbox"
     },
     {
-      "id": "review_detail"
+      "id": "review_detail",
+      "title": "Quickly Review and Respond"
     },
     {
       "id": "draft_reply"

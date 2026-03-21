@@ -37,6 +37,14 @@ Allowed bundle paths:
 
 Behavior:
 - Apply only changes requested by the ticket.
+- You MUST apply changes to mutation_targets.
+- Do not ignore mutation_targets unless impossible.
+- If mutation_targets fields are unspecified, infer minimally but stay within the target object.
+- For each mutation_target:
+  - You MUST only modify the specified fields.
+  - You MUST NOT introduce new top-level fields unless explicitly listed.
+  - If the requested change cannot be expressed using allowed fields, SKIP that change.
+- Treat notes as guidance for how to transform the targeted objects.
 - Preserve existing structure and unrelated fields.
 - Do not invent paths outside the allowed list.
 - If no changes are needed, still return valid PATCH_MODE JSON with an explanatory note.

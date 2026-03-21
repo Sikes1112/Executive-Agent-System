@@ -75,6 +75,10 @@ fi
 
 echo "NORMALIZED_JSON_FILE=$NORM"
 
+python3 "$WORKSPACE_ROOT/core/pipeline/field_guard.py" \
+  --normalized "$NORM" \
+  --ticket "$TICKET_FILE"
+
 ALLOWLIST_PATH="$WORKSPACE_ROOT/contracts/allowlists/canonical_pack_paths.txt"
 python3 "$WORKSPACE_ROOT/core/pipeline/allowlist.py" --allowlist "$ALLOWLIST_PATH" --normalized "$NORM"
 WORKSPACE_ROOT="$WORKSPACE_ROOT" AUDIT_ROOT="$AUDIT_ROOT" \
@@ -96,7 +100,8 @@ python3 "$WORKSPACE_ROOT/core/pipeline/approve.py" \
 LIVE_BUNDLES="$WORKSPACE_ROOT/workspace-example/bundles"
 
 STAGE_DIR="$(mktemp -d "$WORKSPACE_ROOT/.stage.iter.XXXXXX")"
-STAGE_BUNDLES="$STAGE_DIR/bundles"
+STAGE_WORKSPACE_EXAMPLE="$STAGE_DIR/workspace-example"
+STAGE_BUNDLES="$STAGE_WORKSPACE_EXAMPLE/bundles"
 BACKUP_DIR="$WORKSPACE_ROOT/.bundles.backup.$(date -u +%Y%m%dT%H%M%SZ)"
 
 # Stage current bundles as baseline for patching (deterministic base)
@@ -107,7 +112,7 @@ rsync -a --delete "$LIVE_BUNDLES/" "$STAGE_BUNDLES/"
 python3 "$WORKSPACE_ROOT/core/pipeline/apply.py" \
   --allowlist "$ALLOWLIST_PATH" \
   --normalized "$NORM" \
-  --workspace "$STAGE_DIR"
+  --workspace "$STAGE_WORKSPACE_EXAMPLE"
 
 # Recompute baseline in stage (transactional)
 WORKSPACE_ROOT="$STAGE_DIR" "$WORKSPACE_ROOT/core/baseline.sh" --write

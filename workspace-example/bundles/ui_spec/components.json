@@ -1,4 +1,5 @@
 {
+  "_full_object": true,
   "components": [
     {
       "emits": {
@@ -8,15 +9,14 @@
       "props": {
         "reviews": "Review[]"
       },
-      "purpose": "Display a list of reviews"
+      "purpose": "Display a list of reviews related to the selected review"
     },
     {
-      "emits": {},
       "id": "review_detail_panel",
       "props": {
         "selectedReview": "Review"
       },
-      "purpose": "Show details of a selected review"
+      "purpose": "Detailed Review Information with enhanced readability and visibility."
     },
     {
       "emits": {
