@@ -14,15 +14,82 @@ if [ "$TICKET_CHARS" -gt "$MAX_TICKET_CHARS" ]; then
   exit 42
 fi
 
+set +e
+ADAPTER_META="$(python3 - "$WORKSPACE_ROOT" "$TICKET_FILE" <<'PY'
+import importlib.util
+import json
+import re
+import sys
+from pathlib import Path
+
+workspace_root = Path(sys.argv[1])
+ticket_path = Path(sys.argv[2])
+loader_path = workspace_root / "core" / "domain_adapters" / "loader.py"
+
+try:
+    ticket = json.loads(ticket_path.read_text(encoding="utf-8"))
+except Exception as exc:
+    print(f"failed to read ticket json: {exc}", file=sys.stderr)
+    sys.exit(1)
+
+if not isinstance(ticket, dict):
+    print("ticket json must be an object", file=sys.stderr)
+    sys.exit(1)
+
+domain = ticket.get("domain")
+if domain is not None and not isinstance(domain, str):
+    print("ticket domain must be a string when provided", file=sys.stderr)
+    sys.exit(1)
+
+try:
+    spec = importlib.util.spec_from_file_location("domain_adapter_loader", str(loader_path))
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"unable to load adapter loader: {loader_path}")
+    loader = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(loader)
+    adapter = loader.get_adapter(domain)
+except Exception as exc:
+    print(f"adapter lookup failed for domain={domain!r}: {exc}", file=sys.stderr)
+    sys.exit(1)
+
+if not isinstance(adapter, dict):
+    print("adapter payload must be an object", file=sys.stderr)
+    sys.exit(1)
+
+name = adapter.get("name")
+prompt_path = adapter.get("prompt_path")
+lock_suffix = adapter.get("lock_suffix") or name
+
+if not isinstance(name, str) or not name.strip():
+    print("adapter missing valid 'name'", file=sys.stderr)
+    sys.exit(1)
+if not isinstance(prompt_path, str) or not prompt_path.strip():
+    print("adapter missing valid 'prompt_path'", file=sys.stderr)
+    sys.exit(1)
+if not isinstance(lock_suffix, str) or not re.fullmatch(r"[A-Za-z0-9_.-]+", lock_suffix):
+    print("adapter missing valid 'lock_suffix' or fallback name", file=sys.stderr)
+    sys.exit(1)
+
+print(f"{name}\t{prompt_path}\t{lock_suffix}")
+PY
+)"
+ADAPTER_EXIT=$?
+set -e
+if [ "$ADAPTER_EXIT" -ne 0 ]; then
+  echo "ADAPTER_RESOLUTION_FAIL ticket=$TICKET_FILE" >&2
+  exit 44
+fi
+IFS=$'\t' read -r ADAPTER_NAME ADAPTER_PROMPT_PATH ADAPTER_LOCK_SUFFIX <<< "$ADAPTER_META"
+
 # ---------------------------
 # SINGLE-WRITER LOCK (structural)
 # ---------------------------
 LOCK_ROOT="$WORKSPACE_ROOT/core/locks"
-LOCK_DIR="$LOCK_ROOT/iteration_apply.lock"
+LOCK_DIR="$LOCK_ROOT/${ADAPTER_LOCK_SUFFIX}_apply.lock"
 mkdir -p "$LOCK_ROOT"
 
 if ! mkdir "$LOCK_DIR" 2>/dev/null; then
-  echo "LOCK_HELD another iteration apply is running (or crashed). lock=$LOCK_DIR" >&2
+  echo "LOCK_HELD another ${ADAPTER_NAME} apply is running (or crashed). lock=$LOCK_DIR" >&2
   echo "If you are sure nothing is running, remove it: rm -rf $LOCK_DIR" >&2
   exit 43
 fi
@@ -45,7 +112,7 @@ trap cleanup EXIT
 
 ITERATION_PROVIDER="${ITERATION_PROVIDER:-ollama}"
 ITERATION_MODEL="${ITERATION_MODEL:-qwen2.5-coder:14b-32k}"
-SYSTEM_PROMPT_PATH="${SYSTEM_PROMPT_PATH:-$WORKSPACE_ROOT/core/prompts/iteration_specialist.md}"
+SYSTEM_PROMPT_PATH="${SYSTEM_PROMPT_PATH:-$WORKSPACE_ROOT/$ADAPTER_PROMPT_PATH}"
 INVOKE_PATH="$WORKSPACE_ROOT/intake/adapters/invoke.py"
 
 python3 "$INVOKE_PATH" \
