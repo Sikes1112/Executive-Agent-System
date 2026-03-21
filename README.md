@@ -1,135 +1,140 @@
 # workspace-exec
 
-Execution-governance layer for multi-agent systems.
+`workspace-exec` is a domain-aware executive control layer for agent systems.
 
-This repository provides the missing layer between agent output and real-world mutation: a deterministic, auditable, fail-closed execution pipeline.
+It is designed to sit between agent output and state mutation so execution is bounded, auditable, and fail-closed.
 
-workspace-exec is a control-plane execution layer. It does not generate output—it governs how output is validated, constrained, and applied.
+## How to use this repository
 
-Agents produce intent. This system ensures that intent becomes safe, deterministic state change.
+This repository serves two purposes:
 
-The reasoning layer can be local, API-backed, or hybrid. workspace-exec governs execution, not inference.
+1. **Reference architecture**
+   → see how to build a domain-aware executive control layer for agent systems  
+   → start with: docs/framework-vs-implementation.md, docs/architecture.md
 
-## Why Governance
+2. **Runnable implementation**
+   → run the current system locally  
+   → start with: docs/quickstart.md
 
-Unconstrained LLM output applied directly to a codebase or data model is unsafe. Even well-aligned models:
+If you want to adapt this system to your own agents:
+→ read docs/domain_onboarding_template.md
 
-- produce structurally valid but semantically incorrect patches
-- hallucinate file paths or entity IDs that do not exist
-- apply wide-scope changes when narrow changes were intended
-- produce non-deterministic behavior across retries
+## Architecture Pattern (Reusable)
 
-A governance layer interposes between the model output and the workspace to enforce:
+At a high level, the control-layer pattern is:
+1. Accept untrusted intent (raw text or structured work items)
+2. Validate and order work (schema + dependency checks)
+3. Route work by domain
+4. Enforce domain contracts through sanitize-first validation
+5. Branch execution by handling mode
+6. Persist audit artifacts for every run
+7. Fail closed on contract or policy violations
 
-- Fail-closed gates — every stage either passes explicitly or halts
-- Path allowlisting — only declared bundle paths are writable
-- Entity guards — structural entities (e.g., screen IDs) cannot be created without explicit operator permission
-- Atomic apply — partial writes never reach the live workspace
-- Auditability — every input, decision, and output is logged
+This pattern is independent of any single model provider, orchestrator, or product domain.
 
-Without governance, system reliability depends on model quality.
+## This Repository (Current Implementation)
 
-With governance, correctness becomes a structural property of the system itself.
+This implementation is domain-aware and currently supports three domains:
 
-## What This Is
+- `iteration` (mutation domain)
+  - result contract: PATCH_MODE mutation payload
+  - handling: full bounded mutation pipeline
+- `outreach` (generation domain)
+  - result contract: normalized generation result
+  - handling: sanitize + artifact persistence + controlled stop (no apply)
+- `reputationops` (pipeline domain)
+  - result contract: normalized pipeline result
+  - handling: sanitize + artifact persistence + controlled stop (no apply)
 
-A deterministic pipeline that:
+### Current Ticket/Bulk Behavior
 
-- Accepts natural language intent via the Helper layer
-- Converts it to a validated ticket batch envelope
-- Routes tickets (respecting dependency order) to an Iteration Specialist
-- Passes each specialist response through a sequential pipeline (`sanitize → allowlist → entity_guard → approve → apply`)
-- Writes mutations atomically to the bundle workspace
-- Maintains a SHA256 baseline for drift detection
-- Logs all artifacts to an audit trail
+- Batch envelopes are validated and executed in dependency order
+- Execution is sequential and fail-closed
+- Tickets are domain-aware through optional `ticket.domain`
+- Domain-specific output artifacts are written under `audit/exec_runs/<timestamp>/`
 
-The bundle workspace (`workspace-example/bundles/`) is a domain-specific structured data layer — JSON definitions of domain model, API contracts, UI spec, test vectors, and generated code skeleton.
+## Supported vs Intentionally Unsupported
 
-The governance layer is domain-agnostic; the bundles are the product layer.
+### Supported now
 
-## Where This Fits
+- Intake path (`run_intake.sh`) and direct envelope path (`run_batch.sh`)
+- Domain-aware routing (`iteration`, `outreach`, `reputationops`)
+- Sanitization and contract enforcement per domain
+- Bounded mutation apply for `iteration`
+- Non-mutation sanitize-only success paths for `outreach` and `reputationops`
+- Audit artifact generation for helper and execution runs
 
-This system is not an agent framework. It sits beneath your existing agents and orchestrator.
+### Intentionally unsupported now
 
-Your upstream system may use local models, cloud/API-backed models, or a mix of both.
+- Applying non-mutation domain outputs to workspace bundles
+- Cross-ticket rollback after partial batch success
+- Parallel ticket execution
+- Automatic retries across pipeline stages
+- Runtime code/schema evolution through docs-only configuration
 
-Your system:
-- generates intent (natural language or structured tickets)
+## Using This As A Reference Architecture
 
-workspace-exec:
-- validates
-- constrains
-- executes
-- audits
+If you are integrating into your own agent system, keep your existing orchestrator and specialists. Reuse the control-layer boundary:
 
-Flow:
+- Keep upstream planning, routing, and reasoning where it already exists
+- Normalize work into bounded tickets with explicit domain and scope
+- Enforce sanitize-first contracts before any mutation path
+- Separate handling modes:
+  - `mutation_apply`
+  - `sanitize_only_non_mutation`
+  - explicit unsupported/fail paths
+- Keep all executions auditable and fail-closed
+
+Start here:
+- [Framework vs Implementation](docs/framework-vs-implementation.md)
+- [Architecture](docs/architecture.md)
+- [Domain Behavior](docs/domain-behavior.md)
+- [Domain Onboarding Template](docs/domain_onboarding_template.md)
+
+## Running This Repo Today
+
+Start here:
+- [Operator Quickstart](docs/quickstart.md)
+- [Configuration](docs/configuration.md)
+- [Contracts](docs/contracts.md)
+- [Error Model](docs/error-model.md)
+- [Limitations](docs/limitations.md)
+
+### First-run example (raw intent)
+
+```bash
+echo "add a settings screen" > /tmp/intent.txt
+WORKSPACE_ROOT="$(pwd)" bash entrypoints/run_intake.sh /tmp/intent.txt
+# copy ENVELOPE=... from output
+WORKSPACE_ROOT="$(pwd)" bash entrypoints/run_batch.sh <ENVELOPE_PATH>
+```
+
+### First-run example (domain-specific direct envelope)
+
+Use a direct envelope with explicit `domain` per ticket when you want deterministic domain routing, then run:
+
+```bash
+WORKSPACE_ROOT="$(pwd)" bash entrypoints/run_batch.sh /path/to/envelope.json
+```
+
+## Repository Layout
 
 ```text
-Your Orchestrator / Agents
-↓
-workspace-exec (this repository)
-↓
-Validated, auditable mutations to your workspace
-You keep your agents. This replaces unsafe execution.
-```
-Quickstart
-Default examples use Ollama for local setup simplicity. The execution model is provider-agnostic; API-backed providers can be used through configuration.
-Run a full end-to-end execution in three steps:
-echo "add a settings screen" >/tmp/intent.txt
-WORKSPACE_ROOT="$(pwd)" entrypoints/run_intake.sh /tmp/intent.txt
-WORKSPACE_ROOT="$(pwd)" ITERATION_PROVIDER=ollama entrypoints/run_batch.sh <ENVELOPE_PATH>
-core/drift.sh
-See docs/quickstart.md for full instructions.
-Repository Layout
 workspace-exec/
-├── agent-config/
-├── audit/
 ├── contracts/
 ├── core/
+├── docs/
 ├── entrypoints/
 ├── intake/
-├── workspace-example/
-└── AGENTS.md
+├── audit/
+└── workspace-example/
+```
 
-Entry Points
-entrypoints/run_intake.sh <input.txt> — Convert natural language intent to ticket batch envelope
-entrypoints/run_batch.sh <envelope.json> — Execute all tickets in a validated envelope
-entrypoints/run_once.sh <ticket.json> — Execute a single ticket
-core/drift.sh — Check for unauthorized bundle mutations
-Configuration (at a glance)
-WORKSPACE_ROOT
-AUDIT_ROOT
-ITERATION_PROVIDER
-ITERATION_MODEL
-SYSTEM_PROMPT_PATH
-APPROVAL_POLICY
+## Safety Model
 
-Documentation
-docs/architecture.md
-docs/quickstart.md
-docs/adoption.md
-docs/contracts.md
-docs/configuration.md
-docs/roadmap.md
-docs/error-model.md  
-docs/integration-example.md  
-docs/exec-layer.md 
+- Fail-closed execution
+- Allowlisted mutation paths for mutation domain outputs
+- Domain-specific contracts enforced in sanitize step
+- Per-ticket atomic mutation apply for mutation domain
+- Audit artifacts for traceability and debugging
 
-What This Is Not
-This repository is not:
-a multi-agent framework
-a scheduler
-a memory system
-a chatbot
-tied to any specific model runtime or deployment style
-It is a governed execution layer.
-
-Terminology
-Bundle — versioned JSON file
-Envelope — batch of tickets
-Ticket — unit of work
-PATCH_MODE — mutation format
-Exec — control plane
-Iteration Specialist — model or execution backend that produces patch output
-Helper — NL → envelope
-Baseline — drift reference

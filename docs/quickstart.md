@@ -1,97 +1,73 @@
-# quickstart.md — Minimal Run
+# Operator Quickstart
 
-This guide runs `workspace-exec` end-to-end from raw intent → applied change.
-
-The execution layer is provider-agnostic. This guide shows the default local path using Ollama. API-backed providers can be used by setting `ITERATION_PROVIDER` and related environment variables.
-
----
+This quickstart is for running the current repository implementation.
 
 ## 1. Prerequisites
 
-- Python 3.9+ (stdlib only — no dependencies)
-- Bash (macOS or Linux)
+- Python 3.9+
+- Bash (macOS/Linux)
+- One supported provider configured for the target domain runs
 
-Choose a provider:
+Provider defaults:
+- `ITERATION_PROVIDER=ollama`
+- `ITERATION_MODEL=qwen2.5-coder:14b-32k`
 
-### Option A — Local (default)
-- Ollama running locally: https://ollama.com
-
-### Option B — API-backed
-- Access to a supported provider
-- Required API key configured via environment variables
-
----
-
-## 2. Setup
+## 2. Clone and Enter Repo
 
 ```bash
 git clone <repo-url>
 cd workspace-exec
 ```
-No installation step required.
-Local setup (Ollama)
-ollama serve
-ollama pull qwen2.5-coder:14b-32k
-API-backed setup
-Example (Anthropic):
-export ITERATION_PROVIDER=anthropic
-export ITERATION_MODEL=<model-id>
-export ANTHROPIC_API_KEY=<your-key>
-Other providers can be added through the adapter layer.
-3. Minimal Run
-Step 1 — Create intent file
+
+## 3. First Run: Intake -> Batch
+
+```bash
 echo "add a settings screen" > input.txt
-Step 2 — Run intake
 bash entrypoints/run_intake.sh input.txt
-Output includes:
-ENVELOPE=/path/to/..._envelope.json
-VALIDATION=/path/to/..._validation.json
-EXIT_CODE=0
-Step 3 — Run batch
-bash entrypoints/run_batch.sh <envelope.json>
-Use the ENVELOPE= path from step 2.
-One-liner
-eval $(bash entrypoints/run_intake.sh input.txt) && \
-bash entrypoints/run_batch.sh "$ENVELOPE"
-4. Expected Output
-Intake artifacts
-audit/helper_runs/
-{TS}_input.txt
-{TS}_envelope.json
-{TS}_validation.json
-Execution artifacts
-audit/exec_runs/{TS}/
-envelope.json
-validation.json
-t1_ticket.json
-t1_iteration_output.txt
-Workspace changes
-workspace-example/bundles/
-bundle files updated in place
-_baseline.sha256 rewritten
-Successful run
-exits with code 0
-prints EXEC_RUN_DIR=...
-5. Common Issues
-Ollama not running
-Error: connection refused
-Fix:
-ollama serve
-Model not pulled
-Error: model not found
-Fix:
-ollama pull qwen2.5-coder:14b-32k
-Lock file exists (exit 43)
-core/locks/iteration_apply.lock
-Fix:
-rm -rf core/locks/iteration_apply.lock
-Invalid PATCH_MODE output (exit 2)
-Sanitize failed — model did not return valid JSON.
-Check:
-audit/exec_runs/{TS}/t1_iteration_output.txt
-Ticket too large (exit 42)
-Enriched ticket exceeded MAX_TICKET_CHARS.
-Fix:
-reduce scope per ticket
-or increase limit:
-export MAX_TICKET_CHARS=3000
+# copy ENVELOPE=... from output
+bash entrypoints/run_batch.sh <ENVELOPE_PATH>
+```
+
+Expected:
+- validation passes
+- an `audit/exec_runs/<timestamp>/` directory is created
+- for mutation tickets, apply may occur if all gates pass
+
+## 4. First Run: Direct Envelope
+
+If you already have a valid envelope:
+
+```bash
+bash entrypoints/run_batch.sh /path/to/envelope.json
+```
+
+Use explicit `ticket.domain` when domain routing must be deterministic.
+
+## 5. Domain Notes During Runs
+
+- `iteration`: full bounded mutation pipeline
+- `outreach`: sanitize + artifact persistence + stop
+- `reputationops`: sanitize + artifact persistence + stop
+
+Non-mutation domain success does not imply workspace apply.
+
+## 6. Where To Inspect Outputs
+
+- Intake artifacts: `audit/helper_runs/`
+- Execution artifacts: `audit/exec_runs/<timestamp>/`
+- Domain output logs: `<ticket_id>_<domain>_output.txt`
+
+For non-mutation domains, look for:
+- `.normalized.<domain>.json`
+- `.metadata.<domain>.json`
+
+## 7. Common Operational Issues
+
+- Exit `42`: enriched ticket exceeded size limit
+- Exit `43`: lock already held
+- Exit `44`: domain adapter resolution failure
+- Exit `45`: unsupported non-mutation post-sanitize handling
+- Exit `2`/`3`/`10`: stage or policy failures (see error model)
+
+See [error-model.md](error-model.md) for full table.
+
