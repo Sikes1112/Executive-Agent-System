@@ -163,7 +163,22 @@ if [ "$ADAPTER_SANITIZE_APPLY_SUPPORTED" != "1" ]; then
     TICKET_BASE="$(basename "$TICKET_FILE")"
     TICKET_STEM="${TICKET_BASE%.*}"
     OUTREACH_NORM_ARTIFACT="$RUN_DIR/${TICKET_STEM}.normalized.outreach.json"
+    OUTREACH_META_ARTIFACT="$RUN_DIR/${TICKET_STEM}.metadata.outreach.json"
+    OUTREACH_TICKET_ID="$(python3 -c "import json; t=json.load(open('$TICKET_FILE')); print(t.get('ticket_id',''))")"
     cp -f "$NORM" "$OUTREACH_NORM_ARTIFACT"
+    python3 - <<PY > "$OUTREACH_META_ARTIFACT"
+import json
+
+print(json.dumps({
+  "ticket_id": "$OUTREACH_TICKET_ID",
+  "domain": "$ADAPTER_NAME",
+  "handling_mode": "sanitize_only_non_mutation",
+  "status": "ok",
+  "normalized_artifact": "$OUTREACH_NORM_ARTIFACT",
+  "run_stage_reached": "sanitize_complete"
+}, indent=2))
+PY
+    echo "OUTREACH_METADATA_ARTIFACT=$OUTREACH_META_ARTIFACT"
     echo "OUTREACH_SANITIZE_ONLY_OK domain=$ADAPTER_NAME normalized_artifact=$OUTREACH_NORM_ARTIFACT"
     exit 0
   fi
